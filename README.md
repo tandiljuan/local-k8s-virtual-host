@@ -127,3 +127,25 @@ Stop tilt.
 ```bash
 tilt down
 ```
+
+
+#6 Delete k8s cluster created with k3d
+--------------------------------------
+
+Remove registry domain name from **hosts** file
+
+```bash
+sudo hostctl remove domains potato k3d-registry.potato.com
+```
+
+Delete registry.
+
+```bash
+k3d registry delete k3d-registry.potato.com
+```
+
+Delete cluster.
+
+```bash
+k3d cluster delete potato-cluster
+```
