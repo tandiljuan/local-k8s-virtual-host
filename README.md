@@ -9,6 +9,7 @@ Local k8s development environment with name-based virtual hosting
 - [k3d](https://github.com/k3d-io/k3d)
 - [hostctl](https://github.com/guumaster/hostctl)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
+- [tilt](https://github.com/tilt-dev/tilt)
 
 
 #2 Build and test WEB container (with docker)
@@ -92,4 +93,37 @@ Delete all artifacts created from the configuration file
 
 ```bash
 kubectl delete -f potato-web.yaml
+```
+
+
+#5 Use tilt to run **potato web** image in k8s (k3d) cluster
+------------------------------------------------------------
+
+Start tilt.
+
+```bash
+tilt up
+```
+
+Add **potato web** domain names into **hosts** file
+
+```bash
+POTATO_INGRESS_IP=$(kubectl get ingress/potato-web-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+echo ">> Ingress IP: ${POTATO_INGRESS_IP}"
+sudo hostctl add domains --ip $POTATO_INGRESS_IP potato blue.potato.com green.potato.com
+hostctl list
+```
+
+Open tilt UI and click the links or open a web browser and test the **blue** and **green** domain names.
+
+Remove **potato web** domain names from **hosts** file
+
+```bash
+sudo hostctl remove domains potato blue.potato.com green.potato.com
+```
+
+Stop tilt.
+
+```bash
+tilt down
 ```
