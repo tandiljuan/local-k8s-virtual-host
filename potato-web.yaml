@@ -1,0 +1,73 @@
+# Deployment
+# ----------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: potato-web-deployment
+  labels:
+    app: potato-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: potato-web
+  template:
+    metadata:
+      labels:
+        app: potato-web
+    spec:
+      containers:
+        - name: potato-web-container
+          image: k3d-registry.potato.com:12345/potato/web:0.1
+          ports:
+            - containerPort: 8080
+
+---
+
+# Service
+# -------
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: potato-web-service
+spec:
+  selector:
+    app: potato-web
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 8080
+
+---
+
+# Ingress
+# -------
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: potato-web-ingress
+spec:
+  rules:
+    - host: "blue.potato.com"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: potato-web-service
+                port:
+                  number: 9090
+    - host: "green.potato.com"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: potato-web-service
+                port:
+                  number: 9090
