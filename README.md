@@ -8,6 +8,7 @@ Local k8s development environment with name-based virtual hosting
 - [docker](https://www.docker.com/)
 - [k3d](https://github.com/k3d-io/k3d)
 - [hostctl](https://github.com/guumaster/hostctl)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 
 
 #2 Build and test WEB container (with docker)
@@ -66,4 +67,29 @@ Tag and push **potato web** image to the registry.
 ```bash
 docker tag potato/web:latest k3d-registry.potato.com:12345/potato/web:0.1
 docker push k3d-registry.potato.com:12345/potato/web:0.1
+```
+
+
+#4 Run **potato web** image in the k8s cluster
+----------------------------------------------
+
+Apply k8s configuration to run **potato web**.
+
+```bash
+kubectl apply -f potato-web.yaml
+```
+
+Request (test) *blue* and *green* pages from **potato web** within k8s cluster.
+
+```bash
+POTATO_INGRESS_IP=$(kubectl get ingress/potato-web-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+echo ">> Ingress IP: ${POTATO_INGRESS_IP}"
+curl $POTATO_INGRESS_IP --header 'Host: blue.potato.com'
+curl $POTATO_INGRESS_IP --header 'Host: green.potato.com'
+```
+
+Delete all artifacts created from the configuration file
+
+```bash
+kubectl delete -f potato-web.yaml
 ```
